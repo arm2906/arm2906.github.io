@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menú Principal — Unidades de Aprendizaje</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e17;
+    --bg2: #0f1420;
+    --bg3: #141926;
+    --accent: #00d4ff;
+    --accent2: #7b61ff;
+    --accent3: #00ff9d;
+    --accent4: #ff6b6b;
+    --text: #e8eaf0;
+    --text-muted: #8891a8;
+    --border: rgba(0,212,255,0.15);
+    --border2: rgba(255,255,255,0.06);
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .wrapper { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* MARQUEE */
+  .marquee-banner {
+    background: rgba(0,212,255,0.05);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 12px 0;
+    white-space: nowrap;
+  }
+  .marquee-inner { display: inline-block; animation: scroll-left 22s linear infinite; }
+  .marquee-inner span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding: 0 36px;
+  }
+  @keyframes scroll-left { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* HEADER */
+  header { padding: 52px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 52px; }
+  .tag-line {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tag-line::before { content:''; display:inline-block; width:28px; height:1px; background:var(--accent); }
+  h1.main-title {
+    font-family: var(--mono); font-size: clamp(22px,4vw,36px); font-weight:700;
+    color:#fff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:12px;
+  }
+  h1.main-title span { color: var(--accent); }
+  .subtitle { font-size:14px; color: var(--text-muted); font-family: var(--mono); letter-spacing:0.05em; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: var(--mono); font-size:10px; letter-spacing:0.2em;
+    color: var(--accent2); text-transform:uppercase; margin-bottom:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border2); }
+
+  /* GRID DE BOTONES */
+  .units-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 56px;
+  }
+  .unit-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 20px 22px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .unit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .unit-btn:hover { border-color: var(--accent-color, var(--accent)); background: var(--bg3); transform: translateY(-2px); }
+  .unit-btn:hover::before { opacity: 1; }
+  .unit-btn.active { border-color: var(--accent-color, var(--accent)); background: var(--bg3); }
+  .unit-btn.active::before { opacity: 1; }
+  .btn-num {
+    font-family: var(--mono); font-size:11px; color: var(--accent-color, var(--accent));
+    min-width: 28px; padding-top: 3px; letter-spacing: 0.05em;
+  }
+  .btn-text h3 { font-size:13.5px; font-weight:600; color:#fff; line-height:1.3; margin-bottom:4px; }
+  .btn-text p { font-size:11px; color: var(--text-muted); font-family: var(--mono); letter-spacing:0.04em; }
+
+  /* PANEL DE CONTENIDO */
+  .content-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 56px;
+    display: none;
+  }
+  .content-panel.visible { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .panel-header {
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(0,212,255,0.04);
+  }
+  .panel-num {
+    font-family: var(--mono); font-size:11px;
+    color: var(--accent); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .panel-title { font-family: var(--mono); font-size:16px; font-weight:700; color:#fff; }
+  .panel-close {
+    margin-left: auto; background: none; border: 1px solid var(--border2);
+    color: var(--text-muted); cursor: pointer; border-radius: 6px;
+    padding: 4px 10px; font-family: var(--mono); font-size:11px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .panel-close:hover { border-color: var(--accent4); color: var(--accent4); }
+
+  .panel-body { padding: 26px; }
+
+  .info-table-wrap { border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; }
+  .info-table { width:100%; border-collapse:collapse; }
+  .info-table thead tr { background: rgba(123,97,255,0.1); border-bottom: 1px solid rgba(123,97,255,0.2); }
+  .info-table thead th {
+    padding: 11px 16px; font-family: var(--mono); font-size:10px;
+    letter-spacing:0.14em; color: var(--accent2); text-transform:uppercase;
+    text-align:left; font-weight:400;
+  }
+  .info-table tbody tr { border-bottom: 1px solid var(--border2); transition: background 0.15s; }
+  .info-table tbody tr:last-child { border-bottom: none; }
+  .info-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+  .info-table td { padding: 13px 16px; vertical-align:top; font-size:13.5px; color: var(--text); line-height:1.6; }
+  .info-table td.key { font-weight:600; color:#fff; width:200px; font-size:13px; }
+
+  .badge {
+    display:inline-block; padding:2px 10px; border-radius:20px;
+    font-family:var(--mono); font-size:10px; letter-spacing:0.08em; margin-bottom:3px;
+  }
+  .b-cyan { background:rgba(0,212,255,0.1); color:var(--accent); border:1px solid rgba(0,212,255,0.2); }
+  .b-purple { background:rgba(123,97,255,0.1); color:var(--accent2); border:1px solid rgba(123,97,255,0.2); }
+  .b-green { background:rgba(0,255,157,0.1); color:var(--accent3); border:1px solid rgba(0,255,157,0.2); }
+  .b-amber { background:rgba(255,180,0,0.1); color:#ffbb33; border:1px solid rgba(255,180,0,0.2); }
+  .b-red { background:rgba(255,107,107,0.1); color:var(--accent4); border:1px solid rgba(255,107,107,0.2); }
+
+  /* DIVIDER */
+  .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:48px 0; }
+
+  /* 3D SECTION */
+  .lab-section { margin-bottom: 40px; }
+  .lab-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .lab-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border2);
+    background: rgba(123,97,255,0.06);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .lab-header-title { font-family:var(--mono); font-size:12px; letter-spacing:0.12em; color:var(--accent2); text-transform:uppercase; }
+  .lab-header-sub { font-size:11px; color:var(--text-muted); margin-left:auto; font-family:var(--mono); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border2); padding-top: 28px; margin-top: 56px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+  }
+  footer span { font-family:var(--mono); font-size:11px; color:var(--text-muted); letter-spacing:0.05em; }
+  .dot { color: var(--accent); }
+
+  a:link {color: #7b61ff;}
+  a:visited{color: aquamarine;}
+  a:active{color: blue;}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="marquee-banner">
+  <div class="marquee-inner">
+    <span>Unidades de Aprendizaje</span><span>·</span>
+    <span>Menú Principal</span><span>·</span>
+    <span>Semestre 2025</span><span>·</span>
+    <span>Unidades de Aprendizaje</span><span>·</span>
+    <span>Menú Principal</span><span>·</span>
+    <span>Semestre 2026</span><span>·</span>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <header>
+    <div class="tag-line">Menú Principal</div>
+    <h1 class="main-title">Unidades de <span>Aprendizaje</span></h1>
+    <a href="introduccion.html"> <p class="btn-text">Introducción</p></a>
+    <p class="subtitle">// Selecciona una unidad para ver su contenido</p>
+  </header>
+
+  <!-- GRID DE 9 BOTONES -->
+  <section>
+    <div class="section-label">Materias del semestre</div>
+    <div class="units-grid">
+
+      <button class="unit-btn" style="--accent-color:#00d4ff" onclick="showUnit(0)" id="btn-0">
+        <span class="btn-num">01</span>
+        <div class="btn-text">
+          <h3>Geometría y Trigonometría</h3>
+          <p>Matemáticas</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#7b61ff" onclick="showUnit(1)" id="btn-1">
+        <span class="btn-num">02</span>
+        <div class="btn-text">
+          <h3>Expresión Oral y Escrita II</h3>
+          <p>Lenguaje y Comunicación</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#00ff9d" onclick="showUnit(2)" id="btn-2">
+        <span class="btn-num">03</span>
+        <div class="btn-text">
+          <h3>Biología Básica</h3>
+          <p>Ciencias y Vida</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#ffbb33" onclick="showUnit(3)" id="btn-3">
+        <span class="btn-num">04</span>
+        <div class="btn-text">
+          <h3>Inglés II</h3>
+          <p>Idiomas</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#ff6b6b" onclick="showUnit(4)" id="btn-4">
+        <span class="btn-num">05</span>
+        <div class="btn-text">
+          <h3>Técnicas de Investigación de Campo</h3>
+          <p>Metodología e Investigación</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#c084fc" onclick="showUnit(5)" id="btn-5">
+        <span class="btn-num">06</span>
+        <div class="btn-text">
+          <h3>Orientación Juvenil Profesional II</h3>
+          <p>Orientación Vocacional</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#fb923c" onclick="showUnit(6)" id="btn-6">
+        <span class="btn-num">07</span>
+        <div class="btn-text">
+          <h3>Historia II</h3>
+          <p>México contemporáneo</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#38bdf8" onclick="showUnit(7)" id="btn-7">
+        <span class="btn-num">08</span>
+        <div class="btn-text">
+          <h3>Computación Básica II</h3>
+          <p>Excel y HTML</p>
+        </div>
+      </button>
+
+      <button class="unit-btn" style="--accent-color:#a3e635" onclick="showUnit(8)" id="btn-8">
+        <span class="btn-num">09</span>
+        <div class="btn-text">
+          <h3>Filosofía II</h3>
+          <p>Juicio y Raciocinio</p>
+        </div>
+      </button>
+
+    </div>
+  </section>
+
+  
+
+  <!-- PANEL DE CONTENIDO DINÁMICO -->
+  <div id="content-panel" class="content-panel">
+    <div class="panel-header">
+      <span class="panel-num" id="panel-num">01</span>
+      <span class="panel-title" id="panel-title">Geometría y Trigonometría</span>
+      <button class="panel-close" onclick="closePanel()">✕ Cerrar</button>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+  </div>
+
+  
+
+<script>
+const units = [
+  {
+    num:'01', title:'Geometría y Trigonometría', color:'#00d4ff',
+    rows:[
+      ['Tema principal','Estudio de las formas geométricas en el plano y el espacio, así como las relaciones entre ángulos y lados de los triángulos mediante funciones trigonométricas.'],
+      ['Temas clave','Ángulos, triángulos, circunferencia, polígonos, razones trigonométricas (seno, coseno, tangente), Teorema de Pitágoras, ley de senos y cosenos.'],
+      ['Aplicaciones','Arquitectura, ingeniería, astronomía, diseño gráfico, navegación y física.'],
+      ['Herramientas','GeoGebra, calculadoras científicas, tablas trigonométricas, Desmos.'],
+      ['Competencia a desarrollar','Resolver problemas de medición y modelado matemático aplicando razonamiento espacial y analítico.']
+    ]
+  },
+  {
+    num:'02', title:'Expresión Oral y Escrita II', color:'#7b61ff',
+    rows:[
+      ['Tema principal','Desarrollo de competencias comunicativas en español tanto en el lenguaje hablado como en la producción de textos escritos formales e informales.'],
+      ['Temas clave','Argumentación, tipos de textos, coherencia y cohesión, oratoria, debate, redacción académica, ortografía y puntuación.'],
+      ['Aplicaciones','Exposiciones escolares, ensayos, reportes, entrevistas, discursos y comunicación profesional.'],
+      ['Géneros textuales','Dramático, Épico y lírico'],
+      ['Competencia a desarrollar','Redactar de forma clara, precisa y eficaz así como condensar los sentimientos en la redacción.']
+    ]
+  },
+  {
+    num:'03', title:'Biología Básica', color:'#00ff9d',
+    rows:[
+      ['Tema principal','Introducción a los principios fundamentales de la biología: la célula como unidad de vida, los seres vivos y su clasificación, y los procesos vitales básicos.'],
+      ['Temas clave','Célula eucariota y procariota, mitosis y meiosis, metabolismo, genética básica, ADN y ARN, taxonomía de los seres vivos.'],
+      ['Aplicaciones','Medicina, biotecnología, ecología, agronomía y ciencias de la salud.'],
+      ['Herramientas','Microscopio, modelos celulares, laboratorio práctico.'],
+      ['Competencia a desarrollar','Comprender la organización y funcionamiento de los seres vivos a nivel molecular y celular, asi como con su entorno.']
+    ]
+  },
+  {
+    num:'04', title:'Inglés II', color:'#ffbb33',
+    rows:[
+      ['Tema principal','Fortalecimiento del idioma inglés a nivel pre-intermedio (A2-B1), con énfasis en comunicación cotidiana, gramática funcional y comprensión de textos.'],
+      ['Temas clave','Past tense, present perfect, comparativos, vocabulario temático, reading comprehension, writing paragraphs, listening activities.'],
+      ['Aplicaciones','Viajes, trabajo internacional, acceso a información científica y tecnológica, exámenes de certificación.'],
+      ['Habilidades','Speaking, listening, reading y writing con enfoque comunicativo.'],
+      ['Competencia a desarrollar','Desenvolverse en situaciones comunicativas básicas e intermedias en inglés de forma oral y escrita.']
+    ]
+  },
+  {
+    num:'05', title:'Técnicas de Investigación de Campo', color:'#ff6b6b',
+    rows:[
+      ['Tema principal','Métodos y herramientas para realizar investigación empírica fuera del aula: recolección, análisis e interpretación de datos en contextos reales.'],
+      ['Temas clave','Observación participante, entrevista, encuesta, diario de campo, análisis cualitativo y cuantitativo.'],
+      ['Aplicaciones','Ciencias sociales, antropología, periodismo, psicología, educación y estudios de mercado.'],
+      ['Etapas','Planteamiento, diseño, trabajo de campo, sistematización y presentación de resultados.'],
+      ['Competencia a desarrollar','Diseñar y ejecutar proyectos de investigación empírica con rigor metodológico y ética profesional.']
+    ]
+  },
+  {
+    num:'06', title:'Orientación Juvenil Profesional II', color:'#c084fc',
+    rows:[
+      ['Tema principal','Guía para el autoconocimiento, la exploración vocacional y la toma de decisiones sobre el proyecto de vida personal y profesional del estudiante.'],
+      ['Temas clave','Test de aptitudes, oferta educativa, mercado laboral, inteligencias múltiples, proyecto de vida, habilidades blandas.'],
+      ['Aplicaciones','Elección de carrera, preparación para la vida adulta, desarrollo personal y profesional.'],
+      ['Herramientas','Test de autoconocimiento, entrevistas vocacionales, visitas a las carreras.'],
+      ['Competencia a desarrollar','Tomar decisiones informadas y responsables sobre el futuro académico y profesional con base en el autoconocimiento.']
+    ]
+  },
+  {
+    num:'07', title:'Historia II', color:'#fb923c',
+    rows:[
+      ['Tema principal','Estudio del siglo XX y los procesos históricos que configuraron el México contemporáneo: movimientos sociales y globalización.'],
+      ['Temas clave','Neoliberalismo, globalización y periodos presidenciales.'],
+      ['Aplicaciones','Comprensión del presente, análisis crítico de noticias, formación ciudadana y cultural.'],
+      ['Enfoques','Político, económico, social y cultural de la historia contemporánea con la realidad del México actual.']
+    ]
+  },
+  {
+    num:'08', title:'Computación Básica II', color:'#38bdf8',
+    rows:[
+      ['Tema principal','Uso avanzado de herramientas ofimáticas, introducción a la programación y comprensión de sistemas operativos y redes.'],
+      ['Temas clave','Microsoft Office avanzado, bases de datos, algoritmos, programación en Scratch o Python básico, redes e internet, seguridad digital.'],
+      ['Aplicaciones','Productividad laboral, automatización de tareas, emprendimiento digital y acceso a tecnología.'],
+      ['Herramientas','Excel, Word, PowerPoint, navegadores, editores de código, simuladores de redes.'],
+      ['Competencia a desarrollar','Utilizar herramientas digitales de forma eficiente, segura y ética en contextos académicos y laborales.']
+    ]
+  },
+  {
+    num:'09', title:'Filosofía II', color:'#a3e635',
+    rows:[
+      ['Tema principal','Estudio de las grandes corrientes del pensamiento filosófico moderno y contemporáneo, con énfasis en ética, epistemología y lógica.'],
+      ['Temas clave','Racionalismo, empirismo, lógica formal, lógica simbólica y tablas de verdad.'],
+      ['Aplicaciones','Pensamiento crítico, argumentación, toma de decisiones éticas, análisis de dilemas morales contemporáneos.'],
+      ['Autores clave','Descartes, Kant, Hegel, Nietzsche, Sartre, Rawls, Wittgenstein, Simone de Beauvoir.'],
+      ['Competencia a desarrollar','Reflexionar críticamente sobre la existencia, el conocimiento y la moral, aplicando el pensamiento filosófico a dilemas actuales.']
+    ]
+  }
+];
+
+let activeUnit = -1;
+
+function showUnit(idx) {
+  if (idx < 0 || idx >= units.length) {
+    console.warn('Unit index out of range:', idx);
+    return;
+  }
+  const u = units[idx];
+  document.getElementById('panel-num').textContent = u.num;
+  document.getElementById('panel-title').textContent = u.title;
+  document.getElementById('panel-title').style.color = u.color;
+  let html = '<div class="info-table-wrap"><table class="info-table"><thead><tr><th>Aspecto</th><th>Descripción</th></tr></thead><tbody>';
+  u.rows.forEach(r => {
+    html += `<tr><td class="key">${r[0]}</td><td>${r[1]}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('panel-body').innerHTML = html;
+  const panel = document.getElementById('content-panel');
+  panel.classList.add('visible');
+  panel.style.borderColor = u.color + '40';
+
+  document.querySelectorAll('.unit-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  activeUnit = idx;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closePanel() {
+  document.getElementById('content-panel').classList.remove('visible');
+  document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+  activeUnit = -1;
+}
+</script>
+
+<!-- GRID DE EVIDENCIAS -->
+  <div class="wrapper"><section>
+    <div class="section-label">Proyectos y Evidencias</div>
+    <div class="units-grid">
+
+      <a href="filosofia-ii.html" class="unit-btn-link">
+        <button class="unit-btn" style="--accent-color:#a3e635">
+          <span class="btn-num">01</span>
+          <div class="btn-text">
+            <h3>Filosofía II</h3>
+            <p>Juicio y raciocinio</p>
+          </div>
+        </button>
+      </a>
+
+    </div>
+  </section></div> 
+
+  <div class="divider"></div>
+<footer>
+    <span>Menú Principal <span class="dot">·</span> Unidades de Aprendizaje</span>
+    <span class="dot">// 2026</span>
+  </footer>
+ </div>
+</body>
+
+</html>
